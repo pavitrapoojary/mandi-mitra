@@ -2,6 +2,9 @@
 > **"Aapki Dukaan Ka Saathi, Har Order Mein"**  
 > *A hyper-localized, friction-free B2B wholesale ordering platform bridging local Kirana store owners with neighborhood Mandi distributors.*
 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=flat&logo=github)](https://github.com/pavitrapoojary/mandi-mitra)
+[![Portfolio](https://img.shields.io/badge/Creator-Pavitra%20Poojary-d9530f?style=flat&logo=vercel)](https://pavitra-poojary.vercel.app/)
+
 ---
 
 ## 📌 Executive Summary
@@ -128,5 +131,9 @@ Clear, empathetic conversational touchpoints (*"Aas-Paas Ke Stores Dekhein"*, *"
 <div align="center">
 
 **Mandi Mitra** — *Empowering traditional retail with modern, empathetic technology.*
+
+<br/>
+
+Crafted with ❤️ by **[Pavitra Poojary](https://pavitra-poojary.vercel.app/)** • [GitHub Repository](https://github.com/pavitrapoojary/mandi-mitra)
 
 </div>
