@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mandi Mitra - B2B Wholesale Ordering</title>
+  <style>
+    /* -------------------------------------------------------------
+       DESIGN SYSTEM & ACCESSIBILITY
+       Palette: Saffron Orange (#d9530f), Deep Green (#198754),
+       Warm Off-White (#f8f6f0), Dark Slate (#1f2937)
+       Mobile-first, min 48px tap targets, clean screen transitions.
+       ------------------------------------------------------------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #eae5da;
+      color: #1f2937;
+      line-height: 1.4;
+      font-size: 16px;
+    }
+
+    .app-container {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background-color: #f8f6f0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.12);
+    }
+
+    /* SCREEN MANAGEMENT */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.18s ease-in-out;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* TOP APP HEADER (FOR INNER SCREENS) */
+    header.app-header {
+      background-color: #ffffff;
+      border-bottom: 2px solid #e2dcce;
+      padding: 10px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-inline-svg {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+
+    .brand-inline-name {
+      font-size: 18px;
+      font-weight: 900;
+      color: #d9530f;
+    }
+
+    .shop-pill {
+      background: #fff3e8;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    /* =========================================================
+       SCREEN 1: WELCOME & LOCATION DETECTION
+       ========================================================= */
+    .splash-container {
+      padding: 36px 20px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .splash-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .logo-hero-svg {
+      width: 90px;
+      height: 90px;
+      margin-bottom: 14px;
+      filter: drop-shadow(0 4px 8px rgba(217, 83, 15, 0.25));
+    }
+
+    .splash-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #d9530f;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .splash-tagline {
+      font-size: 14px;
+      color: #4b5563;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .location-detect-card {
+      background: #ffffff;
+      border: 2px solid #e2dcce;
+      border-radius: 12px;
+      padding: 20px 16px;
+      margin-top: 32px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .loc-spinner-icon {
+      font-size: 32px;
+      display: inline-block;
+      margin-bottom: 8px;
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .loc-status-title {
+      font-size: 14px;
+      color: #6b7280;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .loc-detected-address {
+      font-size: 18px;
+      font-weight: 800;
+      color: #111827;
+      margin-top: 4px;
+    }
+
+    .loc-detected-sub {
+      font-size: 13px;
+      color: #198754;
+      font-weight: 700;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    /* BUTTONS */
+    .btn-large-primary {
+      width: 100%;
+      height: 56px;
+      background-color: #d9530f;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(217, 83, 15, 0.3);
+    }
+
+    .btn-large-primary:active {
+      background-color: #b43e06;
+    }
+
+    /* =========================================================
+       SCREEN 2: STORE LIST (NEARBY WHOLESALERS/KIRANAS)
+       ========================================================= */
+    .screen-content {
+      padding: 14px;
+      flex: 1;
+    }
+
+    .top-nav-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .btn-back-square {
+      width: 48px;
+      height: 48px;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #374151;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .btn-back-square:active {
+      background: #f3f4f6;
+    }
+
+    .location-header-card {
+      background: #fff8eb;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .loc-label-mini {
+      font-size: 11px;
+      color: #9a3412;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .loc-name-mini {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1f2937;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* STORE CARD */
+    .store-card {
+      background: #ffffff;
+      border: 2px solid #e2dcce;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .store-card:active {
+      border-color: #d9530f;
+      background-color: #fffaf5;
+      transform: scale(0.99);
+    }
+
+    .store-main-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .store-icon-box {
+      width: 54px;
+      height: 54px;
+      min-width: 54px;
+      border-radius: 10px;
+      background: #fff3e8;
+      border: 1px solid #ffd8a8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .store-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .store-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.2;
+    }
+
+    .store-category {
+      font-size: 13px;
+      color: #4b5563;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .store-meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .tag-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .tag-pill.popular {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .tag-pill.distance {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .store-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px dashed #e5e7eb;
+      font-size: 13px;
+      font-weight: 700;
+      color: #d9530f;
+    }
+
+    /* =========================================================
+       SCREEN 3: STORE ITEMS & REPEAT ORDER
+       ========================================================= */
+    .store-banner-active {
+      background: #ffffff;
+      border: 1px solid #dfd8cb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .banner-repeat-badge {
+      background-color: #fff8eb;
+      border: 1px solid #fde0b2;
+      border-left: 5px solid #d9530f;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: #5c3b1e;
+      font-weight: 600;
+    }
+
+    .search-box {
+      margin-bottom: 12px;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 48px;
+      font-size: 15px;
+      padding: 0 12px;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .search-input:focus {
+      border-color: #d9530f;
+    }
+
+    .search-dropdown {
+      margin-top: 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #ffffff;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .search-row {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-row:last-child {
+      border-bottom: none;
+    }
+
+    /* PRODUCT CARD */
+    .product-card {
+      background: #ffffff;
+      border: 1px solid #dfd8cb;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .prod-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .prod-thumb {
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .prod-thumb svg {
+      width: 44px;
+      height: 44px;
+    }
+
+    .prod-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .prod-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.2;
+    }
+
+    .prod-pack {
+      font-size: 13px;
+      color: #4b5563;
+      margin-top: 2px;
+    }
+
+    .prod-price {
+      font-size: 14px;
+      font-weight: 800;
+      color: #d9530f;
+      margin-top: 2px;
+    }
+
+    .prod-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px dashed #e5e7eb;
+    }
+
+    .btn-remove-sm {
+      background: transparent;
+      border: 1px solid #d1d5db;
+      color: #dc2626;
+      font-size: 12px;
+      font-weight: 700;
+      height: 44px;
+      padding: 0 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      border: 2px solid #1f2937;
+      border-radius: 8px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .btn-step {
+      width: 46px;
+      height: 46px;
+      background: #f9fafb;
+      border: none;
+      font-size: 22px;
+      font-weight: 900;
+      color: #111827;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-step:active {
+      background: #e5e7eb;
+    }
+
+    .step-num {
+      min-width: 40px;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    /* STICKY BOTTOM BAR */
+    .sticky-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border-top: 2px solid #dfd8cb;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 90;
+      box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    .bar-total-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bar-items-count {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .bar-total-amt {
+      font-size: 21px;
+      font-weight: 800;
+      color: #d9530f;
+    }
+
+    /* =========================================================
+       SCREEN 4: CONFIRM ORDER
+       ========================================================= */
+    .summary-card {
+      background: #ffffff;
+      border: 1px solid #dfd8cb;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .summary-header {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1f2937;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed #f3f4f6;
+      font-size: 14px;
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      margin-top: 8px;
+      border-top: 2px solid #1f2937;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .slot-card {
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      min-height: 50px;
+      background: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .slot-card.selected {
+      border-color: #d9530f;
+      background-color: #fff9f5;
+    }
+
+    .slot-radio {
+      width: 20px;
+      height: 20px;
+      accent-color: #d9530f;
+    }
+
+    .payment-badge {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-order-karo {
+      width: 100%;
+      height: 56px;
+      background-color: #198754;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(25, 135, 84, 0.25);
+    }
+
+    .btn-order-karo:active {
+      background-color: #146c43;
+    }
+
+    /* =========================================================
+       SCREEN 5: SUCCESS RECEIPT
+       ========================================================= */
+    .success-card {
+      background: #ffffff;
+      border: 2px solid #198754;
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      margin: auto 0;
+    }
+
+    .success-badge {
+      width: 68px;
+      height: 68px;
+      background-color: #d1e7dd;
+      color: #0f5132;
+      font-size: 36px;
+      font-weight: bold;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .order-id-box {
+      background: #f9fafb;
+      border: 2px dashed #9ca3af;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #111827;
+      margin: 14px 0;
+    }
+
+    .success-meta {
+      text-align: left;
+      background: #fffbf5;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- =========================================================
+       SCREEN 1: WELCOME & LOCATION DETECTION
+       ========================================================= -->
+  <div id="screen-splash" class="screen active">
+    <div class="splash-container">
+      <div class="splash-top">
+        <!-- Mandi Mitra Custom Logo -->
+        <svg class="logo-hero-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="#D9530F"/>
+          <path d="M14 26L32 14L50 26V50C50 51.1 49.1 52 48 52H16C14.9 52 14 51.1 14 50V26Z" fill="#FFF8EB"/>
+          <path d="M12 26L32 12L52 26" stroke="#FFE8CC" stroke-width="3.5" stroke-linecap="round"/>
+          <rect x="24" y="34" width="16" height="18" rx="2" fill="#D9530F"/>
+          <circle cx="32" cy="26" r="4.5" fill="#198754"/>
+          <path d="M30 43H34M32 40V46" stroke="#FFF" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+
+        <div class="splash-title">Mandi Mitra</div>
+        <div class="splash-tagline">Aapki dukaan ka saathi, har order mein</div>
+
+        <!-- Location Detection Card -->
+        <div class="location-detect-card">
+          <div class="loc-spinner-icon" id="loc-spinner">📍</div>
+          <div class="loc-status-title" id="loc-status-label">Detecting Nearby Market...</div>
+          <div class="loc-detected-address" id="loc-detected-val">Sadar Mandi Wholesale Hub</div>
+          <div class="loc-detected-sub" id="loc-detected-sub">
+            <span>✓</span> Location Verified (Gurugram Zone)
+          </div>
+        </div>
+      </div>
+
+      <div style="width: 100%; margin-top: 24px;">
+        <button id="btn-view-stores" class="btn-large-primary" type="button">
+          Aas-Paas Ke Stores Dekhein →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP APP HEADER (FOR SCREENS 2, 3, 4) -->
+  <header id="common-header" class="app-header" style="display: none;">
+    <div class="brand-inline">
+      <svg class="brand-inline-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="8" fill="#D9530F"/>
+        <path d="M14 26L32 14L50 26V50H14V26Z" fill="#FFF8EB"/>
+        <rect x="24" y="34" width="16" height="18" fill="#D9530F"/>
+        <circle cx="32" cy="26" r="4" fill="#198754"/>
+      </svg>
+      <span class="brand-inline-name">Mandi Mitra</span>
+    </div>
+    <div class="shop-pill" id="header-shop-name">Gupta Kirana</div>
+  </header>
+
+  <!-- =========================================================
+       SCREEN 2: LIST OF NEARBY KIRANA / WHOLESALE STORES
+       ========================================================= -->
+  <div id="screen-stores" class="screen">
+    <div class="screen-content">
+      <div class="top-nav-bar">
+        <button id="btn-back-to-splash" class="btn-back-square" type="button" title="Back">←</button>
+        <div style="flex: 1;">
+          <div style="font-size: 12px; color: #6b7280; font-weight: 700;">CHOOSE SUPPLIER</div>
+          <div style="font-size: 16px; font-weight: 900; color: #111827;">Aas-Paas Ke Kirana / Wholesalers</div>
+        </div>
+      </div>
+
+      <div class="location-header-card">
+        <div>
+          <div class="loc-label-mini">Detected Area</div>
+          <div class="loc-name-mini">📍 Sadar Mandi Hub (Within 1.5 km)</div>
+        </div>
+        <span style="font-size: 12px; color: #198754; font-weight: 800;">3 Active</span>
+      </div>
+
+      <div class="section-title">
+        <span>Select a Store to Order:</span>
+      </div>
+
+      <!-- STORE 1 -->
+      <div class="store-card" onclick="selectStore('store_1')">
+        <div class="store-main-row">
+          <div class="store-icon-box">🏪</div>
+          <div class="store-info">
+            <div class="store-name">Shree Ganesh Oil & Provisions</div>
+            <div class="store-category">Edible Oils, Atta, Grains & Rice</div>
+            <div class="store-meta-tags">
+              <span class="tag-pill popular">★ 4.8 Rating</span>
+              <span class="tag-pill distance">500m Away</span>
+              <span class="tag-pill">Pichla Order Yahan Se Tha</span>
+            </div>
+          </div>
+        </div>
+        <div class="store-action-row">
+          <span>Min. Order: ₹1,000</span>
+          <span>Dukaan Kholein →</span>
+        </div>
+      </div>
+
+      <!-- STORE 2 -->
+      <div class="store-card" onclick="selectStore('store_2')">
+        <div class="store-main-row">
+          <div class="store-icon-box">📦</div>
+          <div class="store-info">
+            <div class="store-name">Kisan Dal & Pulses Mandi Trader</div>
+            <div class="store-category">Toor Dal, Salt, Spices & Pulses</div>
+            <div class="store-meta-tags">
+              <span class="tag-pill popular">★ 4.7 Rating</span>
+              <span class="tag-pill distance">800m Away</span>
+              <span class="tag-pill">Direct Mandi Rates</span>
+            </div>
+          </div>
+        </div>
+        <div class="store-action-row">
+          <span>Min. Order: ₹800</span>
+          <span>Dukaan Kholein →</span>
+        </div>
+      </div>
+
+      <!-- STORE 3 -->
+      <div class="store-card" onclick="selectStore('store_3')">
+        <div class="store-main-row">
+          <div class="store-icon-box">🚚</div>
+          <div class="store-info">
+            <div class="store-name">Agarwal FMCG & Soaps Distributor</div>
+            <div class="store-category">Maggi, Parle-G, Detergents & Soaps</div>
+            <div class="store-meta-tags">
+              <span class="tag-pill popular">★ 4.9 Rating</span>
+              <span class="tag-pill distance">1.1 km Away</span>
+              <span class="tag-pill">Ready In-Stock</span>
+            </div>
+          </div>
+        </div>
+        <div class="store-action-row">
+          <span>Min. Order: ₹1,500</span>
+          <span>Dukaan Kholein →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       SCREEN 3: STORE CATALOGUE & FAST REPEAT ORDER
+       ========================================================= -->
+  <div id="screen-store-items" class="screen">
+    <div class="screen-content" style="padding-bottom: 110px;">
+      <div class="top-nav-bar">
+        <button id="btn-back-to-stores" class="btn-back-square" type="button" title="Back to Stores">←</button>
+        <div style="flex: 1; min-width: 0;">
+          <div id="selected-store-name" style="font-size: 16px; font-weight: 900; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            Store Name
+          </div>
+          <div id="selected-store-sub" style="font-size: 12px; color: #6b7280; font-weight: 600;">
+            Wholesale Mandi Supplier
+          </div>
+        </div>
+      </div>
+
+      <!-- REPEAT BANNER -->
+      <div class="banner-repeat-badge">
+        🔁 <strong>Pichla Order (Repeat):</strong> Items pre-loaded. Quantity change karein ya naya item add karein.
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="search-box">
+        <input
+          type="text"
+          id="store-item-search"
+          class="search-input"
+          placeholder="Search this store (e.g. Oil, Atta, Dal)..."
+          autocomplete="off"
+        />
+        <div id="store-search-results" class="search-dropdown"></div>
+      </div>
+
+      <div class="section-title">
+        <span>Order Items</span>
+        <span id="store-items-summary" style="font-size: 12px; color: #6b7280; font-weight: 700;"></span>
+      </div>
+
+      <div id="store-cart-list">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- STICKY FOOTER BAR FOR SCREEN 3 -->
+    <div id="sticky-store-bar" class="sticky-bar">
+      <div class="bar-total-info">
+        <span class="bar-items-count" id="bar-items-count">0 items</span>
+        <span class="bar-total-amt" id="bar-total-amount">₹0</span>
+      </div>
+      <button id="btn-proceed-confirm" class="btn-large-primary" style="flex: 1; height: 50px; font-size: 17px;" type="button">
+        Aage Badhein →
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       SCREEN 4: CONFIRM ORDER
+       ========================================================= -->
+  <div id="screen-confirm" class="screen">
+    <div class="screen-content" style="padding-bottom: 24px;">
+      <div class="top-nav-bar">
+        <button id="btn-back-to-items" class="btn-back-square" type="button" title="Back">←</button>
+        <div>
+          <div style="font-size: 12px; color: #6b7280; font-weight: 700;">FINAL STEP</div>
+          <div style="font-size: 17px; font-weight: 900; color: #111827;">Confirm Order</div>
+        </div>
+      </div>
+
+      <!-- CONFIRM VIEW -->
+      <div id="confirm-view-box">
+        <div class="summary-card">
+          <div class="summary-header">
+            <span id="confirm-store-title">Order Summary</span>
+            <span style="font-size: 12px; color: #198754; font-weight: 800;">Direct Delivery</span>
+          </div>
+          <div id="confirm-items-breakdown">
+            <!-- Rendered by JS -->
+          </div>
+          <div class="summary-total">
+            <span>Kul Rakam (Total)</span>
+            <span id="confirm-total-val" style="color: #d9530f;">₹0</span>
+          </div>
+        </div>
+
+        <div style="font-size: 15px; font-weight: 800; margin-bottom: 8px; color: #1f2937;">
+          Delivery Slot Chunein
+        </div>
+        <label class="slot-card selected" id="slot-1-label">
+          <input type="radio" name="delivery_slot" value="Today evening (5 PM - 8 PM)" class="slot-radio" checked />
+          <div>
+            <div style="font-weight: 800; font-size: 15px;">Aaj Shaam (Today evening)</div>
+            <div style="font-size: 12px; color: #6b7280;">5:00 PM - 8:00 PM tak dukaan par delivery</div>
+          </div>
+        </label>
+        <label class="slot-card" id="slot-2-label">
+          <input type="radio" name="delivery_slot" value="Tomorrow morning (7 AM - 10 AM)" class="slot-radio" />
+          <div>
+            <div style="font-weight: 800; font-size: 15px;">Kal Subah (Tomorrow morning)</div>
+            <div style="font-size: 12px; color: #6b7280;">7:00 AM - 10:00 AM dukaan khulte hi</div>
+          </div>
+        </label>
+
+        <div class="payment-badge" style="margin-top: 14px;">
+          <span style="font-size: 24px;">💵</span>
+          <div>
+            <div style="font-size: 14px; font-weight: 800; color: #065f46;">Pay on Delivery (Cash / UPI)</div>
+            <div style="font-size: 12px; color: #047857;">Mal check karne ke baad payment karein.</div>
+          </div>
+        </div>
+
+        <button id="btn-order-karo" class="btn-order-karo" type="button">
+          ✓ Order Karo
+        </button>
+      </div>
+
+      <!-- SUCCESS CONFIRMATION -->
+      <div id="success-view-box" class="success-card" style="display: none;">
+        <div class="success-badge">✓</div>
+        <div style="font-size: 21px; font-weight: 900; color: #0f5132; margin-bottom: 4px;">
+          Shukriya! Aapka order mil gaya.
+        </div>
+        <div style="font-size: 14px; color: #4b5563;">
+          Distributor ko aapka order bhej diya gaya hai.
+        </div>
+
+        <div class="order-id-box">
+          Order ID: <span id="success-order-num" style="color: #d9530f;">#MM-8921</span>
+        </div>
+
+        <div class="success-meta">
+          <div style="margin-bottom: 6px;"><strong>Store:</strong> <span id="success-store-name">-</span></div>
+          <div style="margin-bottom: 6px;"><strong>Delivery Slot:</strong> <span id="success-slot-time">-</span></div>
+          <div style="margin-bottom: 6px;"><strong>Payment:</strong> Pay on Delivery</div>
+          <div><strong>Total Bill:</strong> <span id="success-total-price" style="font-weight: 900; color: #d9530f; font-size: 16px;">-</span></div>
+        </div>
+
+        <button id="btn-start-new" class="btn-large-primary" style="background: #1f2937; height: 50px; font-size: 16px;" type="button">
+          Naya Order Banayein (Start New)
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* -------------------------------------------------------------
+     PRODUCT ICONS (SELF-CONTAINED SVG)
+     ------------------------------------------------------------- */
+  const ICONS = {
+    oil: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="8" fill="#FFF9DB"/>
+      <path d="M26 14H38V20H26V14Z" fill="#F59F00"/>
+      <path d="M22 20H42L46 32V52C46 54.2 44.2 56 42 56H22C19.8 56 18 54.2 18 52V32L22 20Z" fill="#FCC419"/>
+      <circle cx="32" cy="38" r="8" fill="#F08C00"/>
+      <path d="M32 32C32 32 27 38 27 41C27 43.8 29.2 46 32 46C34.8 46 37 43.8 37 41C37 38 32 32 32 32Z" fill="#FFF"/>
+    </svg>`,
+    salt: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="8" fill="#E7F5FF"/>
+      <rect x="18" y="16" width="28" height="38" rx="4" fill="#1971C2"/>
+      <rect x="22" y="20" width="20" height="12" rx="2" fill="#FFFFFF"/>
+      <text x="32" y="29" font-size="8" font-weight="bold" fill="#1971C2" text-anchor="middle" font-family="sans-serif">SALT</text>
+      <circle cx="32" cy="44" r="3" fill="#FFFFFF"/>
+    </svg>`,
+    atta: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="8" fill="#FFF4E6"/>
+      <path d="M18 22C18 18 46 18 46 22L44 54C44 56 42 58 40 58H24C22 58 20 56 20 54L18 22Z" fill="#E8590C"/>
+      <circle cx="32" cy="38" r="9" fill="#FFF3BF"/>
+      <text x="32" y="41" font-size="7" font-weight="900" fill="#D9480F" text-anchor="middle" font-family="sans-serif">ATTA</text>
+    </svg>`,
+    noodles: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="8" fill="#FFF9DB"/>
+      <rect x="16" y="18" width="32" height="34" rx="4" fill="#F03E3E"/>
+      <rect x="20" y="22" width="24" height="12" rx="2" fill="#FFE066"/>
+      <text x="32" y="31" font-size="8" font-weight="900" fill="#D6336C" text-anchor="middle" font-family="sans-serif">2-MIN</text>
+    </svg>`,
+    biscuit: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="8" fill="#FFF4E6"/>
+      <rect x="16" y="20" width="32" height="28" rx="4" fill="#F76707"/>
+      <rect x="20" y="24" width="24" height="20" rx="3" fill="#FFE8CC"/>
+    </svg>`,
+    detergent: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="8" fill="#EBFBEE"/>
+      <path d="M20 22C20 18 44 18 44 22L46 54C46 56 44 58 42 58H22C20 58 18 56 18 54L20 22Z" fill="#12B886"/>
+    </svg>`,
+    soap: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="8" fill="#E6FCF5"/>
+      <rect x="16" y="22" width="32" height="24" rx="6" fill="#0CA678"/>
+      <path d="M32 29V39M27 34H37" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`,
+    dal: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="8" fill="#FFF9DB"/>
+      <path d="M20 24C20 20 44 20 44 24L46 52C46 55 43 57 40 57H24C21 57 18 55 18 52L20 24Z" fill="#FAB005"/>
+      <circle cx="28" cy="38" r="2.5" fill="#E67700"/>
+      <circle cx="34" cy="42" r="2.5" fill="#E67700"/>
+    </svg>`
+  };
+
+  /* -------------------------------------------------------------
+     STORES & CATALOGUE DATA
+     ------------------------------------------------------------- */
+  const STORES = {
+    "store_1": {
+      id: "store_1",
+      name: "Shree Ganesh Oil & Provisions",
+      subtitle: "Edible Oils, Atta, Grains & Rice • 500m Away",
+      minOrder: 1000,
+      defaultLastOrder: { "p_oil": 2, "p_atta": 3 },
+      catalogue: [
+        { id: "p_oil", name: "Fortune Sunlite Refined Oil", pack: "Box of 15 Pouches (1L)", price: 1980, icon: "oil" },
+        { id: "p_atta", name: "Aashirvaad Shudh Chakki Atta", pack: "Bundle of 5 Bags (10kg)", price: 1920, icon: "atta" },
+        { id: "p_rice", name: "India Gate Basmati Rice", pack: "Sack of 25 kg", price: 2250, icon: "dal" }
+      ]
+    },
+    "store_2": {
+      id: "store_2",
+      name: "Kisan Dal & Pulses Mandi Trader",
+      subtitle: "Toor Dal, Salt, Spices & Pulses • 800m Away",
+      minOrder: 800,
+      defaultLastOrder: { "p_salt": 2, "p_dal": 1 },
+      catalogue: [
+        { id: "p_salt", name: "Tata Salt Vacuum Evaporated", pack: "Bag of 25 Packs (1kg)", price: 650, icon: "salt" },
+        { id: "p_dal", name: "Premium Desi Toor Dal", pack: "Sack of 30 kg", price: 4650, icon: "dal" },
+        { id: "p_moong", name: "Moong Dal Dhuli", pack: "Sack of 20 kg", price: 2100, icon: "dal" }
+      ]
+    },
+    "store_3": {
+      id: "store_3",
+      name: "Agarwal FMCG & Soaps Distributor",
+      subtitle: "Maggi, Biscuits, Soaps & Detergents • 1.1 km Away",
+      minOrder: 1500,
+      defaultLastOrder: { "p_maggi": 1, "p_parle": 1, "p_soap": 1 },
+      catalogue: [
+        { id: "p_maggi", name: "Maggi 2-Minute Noodles", pack: "Master Carton (96 Packs)", price: 1200, icon: "noodles" },
+        { id: "p_parle", name: "Parle-G Gold Biscuits", pack: "Carton of 24 Packs (1kg)", price: 2150, icon: "biscuit" },
+        { id: "p_surf", name: "Surf Excel Detergent", pack: "Carton of 18 Packs (1kg)", price: 2430, icon: "detergent" },
+        { id: "p_soap", name: "Dettol Soap Original", pack: "Master Box (48 Bars)", price: 1850, icon: "soap" }
+      ]
+    }
+  };
+
+  // State
+  let activeStoreId = "store_1";
+  let cart = {}; // { [productId]: quantity }
+
+  const STORAGE_KEY = "mandi_mitra_clean_v4";
+
+  function formatRupees(amount) {
+    return "₹" + Number(amount).toLocaleString("en-IN");
+  }
+
+  /* -------------------------------------------------------------
+     SCREEN TRANSITIONS
+     ------------------------------------------------------------- */
+  const screens = {
+    splash: document.getElementById("screen-splash"),
+    stores: document.getElementById("screen-stores"),
+    items: document.getElementById("screen-store-items"),
+    confirm: document.getElementById("screen-confirm")
+  };
+
+  const commonHeader = document.getElementById("common-header");
+  const stickyStoreBar = document.getElementById("sticky-store-bar");
+
+  function navigateTo(screenName) {
+    Object.values(screens).forEach(s => s.classList.remove("active"));
+    window.scrollTo(0, 0);
+
+    if (screenName === "splash") {
+      screens.splash.classList.add("active");
+      commonHeader.style.display = "none";
+      stickyStoreBar.style.display = "none";
+    } else if (screenName === "stores") {
+      screens.stores.classList.add("active");
+      commonHeader.style.display = "flex";
+      stickyStoreBar.style.display = "none";
+    } else if (screenName === "items") {
+      screens.items.classList.add("active");
+      commonHeader.style.display = "flex";
+      stickyStoreBar.style.display = "flex";
+      renderStoreItems();
+    } else if (screenName === "confirm") {
+      screens.confirm.classList.add("active");
+      commonHeader.style.display = "flex";
+      stickyStoreBar.style.display = "none";
+      renderConfirmScreen();
+    }
+  }
+
+  /* -------------------------------------------------------------
+     STORE SELECTION & CART MANAGEMENT
+     ------------------------------------------------------------- */
+  window.selectStore = function(storeId) {
+    activeStoreId = storeId;
+    const store = STORES[storeId];
+    document.getElementById("selected-store-name").textContent = store.name;
+    document.getElementById("selected-store-sub").textContent = store.subtitle;
+
+    // Load initial repeat cart for this store
+    cart = { ...store.defaultLastOrder };
+    navigateTo("items");
+  };
+
+  function getStoreItem(storeId, itemId) {
+    const store = STORES[storeId];
+    return store ? store.catalogue.find(p => p.id === itemId) : null;
+  }
+
+  function calculateCartTotals() {
+    const store = STORES[activeStoreId];
+    let totalItems = 0;
+    let totalAmount = 0;
+
+    for (const [id, qty] of Object.entries(cart)) {
+      if (qty > 0) {
+        totalItems += 1;
+        const item = getStoreItem(activeStoreId, id);
+        if (item) {
+          totalAmount += qty * item.price;
+        }
+      }
+    }
+    return { totalItems, totalAmount };
+  }
+
+  function renderStoreItems() {
+    const listContainer = document.getElementById("store-cart-list");
+    const summaryTag = document.getElementById("store-items-summary");
+    const barItemsCount = document.getElementById("bar-items-count");
+    const barTotalAmount = document.getElementById("bar-total-amount");
+    const proceedBtn = document.getElementById("btn-proceed-confirm");
+
+    const activeItemIds = Object.keys(cart).filter(id => cart[id] > 0);
+    const { totalItems, totalAmount } = calculateCartTotals();
+
+    summaryTag.textContent = `${totalItems} items in cart`;
+    barItemsCount.textContent = `${totalItems} items`;
+    barTotalAmount.textContent = formatRupees(totalAmount);
+
+    if (activeItemIds.length === 0) {
+      listContainer.innerHTML = `
+        <div style="background: #ffffff; border: 2px dashed #d1d5db; border-radius: 8px; padding: 28px 16px; text-align: center; color: #6b7280; margin: 16px 0;">
+          <div style="font-size: 16px; font-weight: 800; color: #111827;">Cart khali hai</div>
+          <div style="font-size: 13px; margin-top: 4px;">Upar search se item add karein ya pichla order reset karein.</div>
+          <button onclick="resetStoreCart()" style="margin-top: 12px; height: 44px; padding: 0 16px; background: #ffffff; border: 2px solid #1f2937; border-radius: 6px; font-weight: 700; cursor: pointer;">
+            ↺ Reset Last Order
+          </button>
+        </div>
+      `;
+      proceedBtn.disabled = true;
+      return;
+    }
+
+    proceedBtn.disabled = false;
+    let html = "";
+
+    activeItemIds.forEach(id => {
+      const item = getStoreItem(activeStoreId, id);
+      if (!item) return;
+
+      const qty = cart[id];
+      const itemTotal = item.price * qty;
+      const iconSvg = ICONS[item.icon] || ICONS.dal;
+
+      html += `
+        <div class="product-card">
+          <div class="prod-main">
+            <div class="prod-thumb">
+              ${iconSvg}
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">${item.name}</div>
+              <div class="prod-pack">${item.pack}</div>
+              <div class="prod-price">${formatRupees(item.price)} / unit</div>
+            </div>
+          </div>
+
+          <div class="prod-bottom">
+            <button class="btn-remove-sm" onclick="removeStoreItem('${item.id}')">
+              ✕ Hatayein
+            </button>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="text-align: right;">
+                <div style="font-size: 11px; color: #6b7280; font-weight: 700;">TOTAL</div>
+                <div style="font-size: 16px; font-weight: 900; color: #111827;">${formatRupees(itemTotal)}</div>
+              </div>
+
+              <div class="stepper">
+                <button class="btn-step" onclick="changeStoreQty('${item.id}', -1)">−</button>
+                <span class="step-num">${qty}</span>
+                <button class="btn-step" onclick="changeStoreQty('${item.id}', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    listContainer.innerHTML = html;
+  }
+
+  window.changeStoreQty = function(id, delta) {
+    const current = cart[id] || 0;
+    const next = current + delta;
+    if (next <= 0) {
+      delete cart[id];
+    } else {
+      cart[id] = next;
+    }
+    renderStoreItems();
+  };
+
+  window.removeStoreItem = function(id) {
+    delete cart[id];
+    renderStoreItems();
+  };
+
+  window.resetStoreCart = function() {
+    const store = STORES[activeStoreId];
+    cart = { ...store.defaultLastOrder };
+    renderStoreItems();
+  };
+
+  /* -------------------------------------------------------------
+     SEARCH WITHIN SELECTED STORE
+     ------------------------------------------------------------- */
+  const searchInput = document.getElementById("store-item-search");
+  const searchDropdown = document.getElementById("store-search-results");
+
+  searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.trim().toLowerCase();
+    if (!query) {
+      searchDropdown.style.display = "none";
+      searchDropdown.innerHTML = "";
+      return;
+    }
+
+    const store = STORES[activeStoreId];
+    const matches = store.catalogue.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      p.pack.toLowerCase().includes(query)
+    );
+
+    if (matches.length === 0) {
+      searchDropdown.innerHTML = `<div style="padding: 10px; font-size: 13px; color: #6b7280;">Koi item nahi mila</div>`;
+      searchDropdown.style.display = "block";
+      return;
+    }
+
+    let html = "";
+    matches.forEach(item => {
+      const alreadyIn = (cart[item.id] || 0) > 0;
+      const iconSvg = ICONS[item.icon] || ICONS.dal;
+
+      html += `
+        <div class="search-row">
+          <div style="width: 32px; height: 32px;">${iconSvg}</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 13px; font-weight: 800;">${item.name}</div>
+            <div style="font-size: 11px; color: #6b7280;">${item.pack} • ${formatRupees(item.price)}</div>
+          </div>
+          <button onclick="addItemFromSearch('${item.id}')" style="background: #d9530f; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; font-weight: 700; font-size: 12px; cursor: pointer;">
+            ${alreadyIn ? '+1 Add' : '+ Add'}
+          </button>
+        </div>
+      `;
+    });
+
+    searchDropdown.innerHTML = html;
+    searchDropdown.style.display = "block";
+  });
+
+  window.addItemFromSearch = function(id) {
+    cart[id] = (cart[id] || 0) + 1;
+    renderStoreItems();
+    searchInput.value = "";
+    searchDropdown.style.display = "none";
+  };
+
+  /* -------------------------------------------------------------
+     SCREEN 4: CONFIRMATION & ORDER SUCCESS
+     ------------------------------------------------------------- */
+  function renderConfirmScreen() {
+    const store = STORES[activeStoreId];
+    document.getElementById("confirm-store-title").textContent = store.name;
+    document.getElementById("confirm-view-box").style.display = "block";
+    document.getElementById("success-view-box").style.display = "none";
+
+    const breakdownContainer = document.getElementById("confirm-items-breakdown");
+    const { totalAmount } = calculateCartTotals();
+
+    let html = "";
+    Object.keys(cart).filter(id => cart[id] > 0).forEach(id => {
+      const item = getStoreItem(activeStoreId, id);
+      if (!item) return;
+
+      const qty = cart[id];
+      const itemTotal = item.price * qty;
+
+      html += `
+        <div class="summary-row">
+          <div>
+            <div style="font-weight: 800;">${item.name}</div>
+            <div style="font-size: 12px; color: #6b7280;">${qty} unit(s) • ${item.pack}</div>
+          </div>
+          <div style="font-weight: 800;">${formatRupees(itemTotal)}</div>
+        </div>
+      `;
+    });
+
+    breakdownContainer.innerHTML = html;
+    document.getElementById("confirm-total-val").textContent = formatRupees(totalAmount);
+  }
+
+  // Delivery slot card selection
+  const slotCards = document.querySelectorAll(".slot-card");
+  slotCards.forEach(card => {
+    card.addEventListener("click", () => {
+      slotCards.forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      const radio = card.querySelector("input[type='radio']");
+      if (radio) radio.checked = true;
+    });
+  });
+
+  /* -------------------------------------------------------------
+     EVENT LISTENERS & NAVIGATION HOOKS
+     ------------------------------------------------------------- */
+  document.getElementById("btn-view-stores").addEventListener("click", () => {
+    navigateTo("stores");
+  });
+
+  document.getElementById("btn-back-to-splash").addEventListener("click", () => {
+    navigateTo("splash");
+  });
+
+  document.getElementById("btn-back-to-stores").addEventListener("click", () => {
+    navigateTo("stores");
+  });
+
+  document.getElementById("btn-proceed-confirm").addEventListener("click", () => {
+    const { totalItems } = calculateCartTotals();
+    if (totalItems > 0) {
+      navigateTo("confirm");
+    }
+  });
+
+  document.getElementById("btn-back-to-items").addEventListener("click", () => {
+    navigateTo("items");
+  });
+
+  // Order Karo
+  document.getElementById("btn-order-karo").addEventListener("click", () => {
+    const store = STORES[activeStoreId];
+    const { totalAmount } = calculateCartTotals();
+    const selectedSlotRadio = document.querySelector("input[name='delivery_slot']:checked");
+    const slotText = selectedSlotRadio ? selectedSlotRadio.value : "Today evening";
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+
+    document.getElementById("success-order-num").textContent = `#MM-${randomNum}`;
+    document.getElementById("success-store-name").textContent = store.name;
+    document.getElementById("success-slot-time").textContent = slotText;
+    document.getElementById("success-total-price").textContent = formatRupees(totalAmount);
+
+    document.getElementById("confirm-view-box").style.display = "none";
+    document.getElementById("success-view-box").style.display = "block";
+    window.scrollTo(0, 0);
+  });
+
+  document.getElementById("btn-start-new").addEventListener("click", () => {
+    navigateTo("splash");
+  });
+</script>
+
+</body>
+</html>
