@@ -134,6 +134,6 @@ Clear, empathetic conversational touchpoints (*"Aas-Paas Ke Stores Dekhein"*, *"
 
 <br/>
 
-Crafted with ❤️ by **[Pavitra Poojary](https://pavitra-poojary.vercel.app/)** • [GitHub Repository](https://github.com/pavitrapoojary/mandi-mitra)
+Crafted with ❤️ by **[Pavitra Poojary](https://pavitra-poojary.vercel.app/)**
 
 </div>
